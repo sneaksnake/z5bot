@@ -1,0 +1,5 @@
+__pycache__/
+stories/
+tools/
+venv/
+config.txt
