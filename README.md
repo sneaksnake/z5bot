@@ -1,11 +1,12 @@
 # Z5Bot
-A script to glue the Telegram Bot API and Frotz together.
+A script to glue the Telegram Bot API and Frotz together.  
+Maybe an instance is running [right now](http://telegram.me/z5bot)!
 
 ## Screenshot
 ![it is actually able to run](https://raw.githubusercontent.com/sneaksnake/z5bot/master/media/demo-screenshot.png)  
 
-At the time of writing, the code is really fucked up,
-documentation doesn't exist and a ton of stuff is hardcoded.
+At the time of writing, full documentation doesn't exist
+and most stuff is hardcoded.
 But if you want to give it a try anyway...
 
 ## Installation (sigh)
