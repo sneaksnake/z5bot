@@ -11,12 +11,6 @@ logging.basicConfig(
 )
 logging.getLogger('telegram').setLevel(logging.INFO)
 
-class MenuState:
-  pass
-
-class GameSelectionState(MenuState):
-  def execute(self):
-    return 
 
 class Story:
 
@@ -45,10 +39,16 @@ class Player:
     #self.stage = 
 
   @classmethod
-  def get_instance_by_username(self, username):
-    for player in self.instances:
-      if player.username == username:
-        return player
+  def get_instance_or_create(self, username):
+    if len(self.instances) > 0:
+      for player in self.instances:
+        if player.username == username:
+          logging.debug('Using existing Player instance: %r' % player)
+          return player
+    # no instance found / not existing
+    player = Player(username)
+    logging.debug('Created new Player instance: %r' % player)
+    return player
 
   def set_story(self, story):
     self.story = story
@@ -68,6 +68,16 @@ class Z5Bot:
   def __init__(self):
     self.__class__.instances.append(self)
     self.players = []
+
+  @classmethod
+  def get_instance_or_create(self):
+    if len(self.instances) > 0:
+      instance = self.instances[0]
+      logging.debug('Using existing z5bot instance: %r' % instance)
+    else:
+      instance = Z5Bot()
+      logging.debug('Created new z5bot instance: %r' % instance)
+    return instance
 
   def add_player(self, player):
     self.players.append(player)
@@ -95,12 +105,13 @@ def cmd_start(bot, update):
   bot.sendMessage(update.message.chat_id, text=text)
 
 def cmd_select(bot, update):
+  z5bot = Z5Bot.get_instance_or_create()
+
+  username = update.message.from_user.username
+  player = Player.get_instance_or_create(username)
   
   text = 'For Zork 1, write /select z1\nMore games soon.'
-  if update.message.text == '/select z1':
-    z5bot = Z5Bot.instances[0]
-    player =  Player.get_instance_by_username(update.message.from_user.username)
-    print(player)
+  if 'z1' in update.message.text: 
     player.set_story(Story(name='Zork 1', abbrev='z1', filename='zork_1-r52.z5'))
     z5bot.add_player(player)
     bot.sendMessage(update.message.chat_id, text=z5bot.receive(update.message.from_user.username))
@@ -108,20 +119,10 @@ def cmd_select(bot, update):
     bot.sendMessage(update.message.chat_id, text=text)
 
 def on_message(bot, update):
-  if len(Z5Bot.instances) == 0:
-    logging.debug('Creating new Z5Bot instance.')
-    z5bot = Z5Bot()
-  else:
-    z5bot = Z5Bot.instances[0]
-    logging.debug('Using existing Z5Bot instance: %r' % z5bot)
+  z5bot = Z5Bot.get_instance_or_create()
 
   username = update.message.from_user.username
-
-  if Player.get_instance_by_username(username) is None:
-    logging.debug('No instance of Player found, creating.')
-    player = Player(username)
-  else:
-    player = Player.get_instance_by_username(username)
+  player = Player.get_instance_or_create(username)
 
   if player.story is None:
     text = 'Please use the /select command to select a game.'
@@ -142,6 +143,7 @@ def on_message(bot, update):
 def on_error(bot, update, error):
   logger = logging.getLogger(__name__)
   logger.warn('Update %r caused error %r!' % (update, error))
+  print(error)
 
 
 if __name__ == '__main__':
