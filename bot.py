@@ -29,27 +29,27 @@ class Story:
       if story.abbrev == abbrev:
         return story
 
-class Player:
+class Chat:
 
   instances = []
 
-  def __init__(self, username):
+  def __init__(self, id):
     self.__class__.instances.append(self)
-    self.username = username
+    self.id = id
     self.story = None
     #self.stage = 
 
   @classmethod
-  def get_instance_or_create(self, username):
+  def get_instance_or_create(self, id):
     if len(self.instances) > 0:
-      for player in self.instances:
-        if player.username == username:
-          logging.debug('Using existing Player instance: %r' % player)
-          return player
+      for chat in self.instances:
+        if chat.id == id:
+          logging.debug('Using existing Chat instance: %r' % chat)
+          return chat
     # no instance found / not existing
-    player = Player(username)
-    logging.debug('Created new Player instance: %r' % player)
-    return player
+    chat = Chat(id)
+    logging.debug('Created new Chat instance: %r' % chat)
+    return chat
 
   def set_story(self, story):
     self.story = story
@@ -57,9 +57,9 @@ class Player:
 
   def __repr__(self):
     if self.story is not None:
-      return '<Player %r, playing %r>' % (self.username, self.story.name)
+      return '<Chat: %d, playing %r>' % (self.id, self.story.name)
 
-    return '<Player %r>' % self.username
+    return '<Chat: %d>' % self.id
 
 class Z5Bot:
 
@@ -68,33 +68,36 @@ class Z5Bot:
 
   def __init__(self):
     self.__class__.instances.append(self)
-    self.players = []
+    self.chats = []
 
   @classmethod
   def get_instance_or_create(self):
     if len(self.instances) > 0:
       instance = self.instances[0]
-      logging.debug('Using existing z5bot instance: %r' % instance)
+      logging.debug('Using existing Z5Bot instance: %r' % instance)
     else:
       instance = Z5Bot()
-      logging.debug('Created new z5bot instance: %r' % instance)
+      logging.debug('Created new Z5Bot instance: %r' % instance)
     return instance
 
-  def add_player(self, player):
-    self.players.append(player)
+  def add_chat(self, chat):
+    self.chats.append(chat)
 
-  def get_player_by_username(self, username):
-    for player in self.players:
-      if player.username == username:
-        return player
+  def get_chat_by_id(self, id):
+    for chat in self.chats:
+      if chat.id == id:
+        return chat
 
-  def process(self, username, command):
-    self.player = self.get_player_by_username(username)
-    self.player.frotz.send('%s\r\n' % command)
+  def process(self, id, command):
+    self.chat = self.get_chat_by_id(id)
+    self.chat.frotz.send('%s\r\n' % command)
 
-  def receive(self, username):
-    self.player = self.get_player_by_username(username)
-    return self.player.frotz.get()
+  def receive(self, id):
+    self.chat = self.get_chat_by_id(id)
+    return self.chat.frotz.get()
+
+  def __repr__(self):
+    return '<Z5Bot, chats running: %d>' % len(self.chats)
 
 
 def cmd_start(bot, update):
@@ -106,14 +109,14 @@ def cmd_start(bot, update):
 def cmd_select(bot, update):
   z5bot = Z5Bot.get_instance_or_create()
 
-  username = update.message.from_user.username
-  player = Player.get_instance_or_create(username)
+  id = update.message.chat_id
+  chat = Chat.get_instance_or_create(id)
   
   text = 'For Zork 1, write /select z1\nMore games soon.'
   if 'z1' in update.message.text: 
-    player.set_story(Story(name='Zork 1', abbrev='z1', filename='zork_1-r52.z5'))
-    z5bot.add_player(player)
-    bot.sendMessage(update.message.chat_id, text=z5bot.receive(update.message.from_user.username))
+    chat.set_story(Story(name='Zork 1', abbrev='z1', filename='zork_1-r52.z5'))
+    z5bot.add_chat(chat)
+    bot.sendMessage(update.message.chat_id, text=z5bot.receive(update.message.chat_id))
   else:
     bot.sendMessage(update.message.chat_id, text=text)
 
@@ -122,22 +125,17 @@ def on_message(bot, update):
 
   logging.info('@%s sent: %r' % (update.message.from_user.username, update.message.text[:30]))
 
-  username = update.message.from_user.username
-  player = Player.get_instance_or_create(username)
+  id = update.message.chat_id
+  chat = Chat.get_instance_or_create(id)
 
-  if player.story is None:
+  if chat.story is None:
     text = 'Please use the /select command to select a game.'
     bot.sendMessage(update.message.chat_id, text=text)
     return
 
-  # print(player.story)
+  z5bot.process(id, update.message.text)
 
-  #if z5bot.get_player_by_username(username) is None:
-  #  logging.debug('Adding Player %r to the bot.' % player)
-  #  z5bot.add_player(player)
-  z5bot.process(username, update.message.text)
-
-  received = z5bot.receive(username)
+  received = z5bot.receive(id)
   logging.info('Answering @%s: %r' % (update.message.from_user.username, received[:30]))
   bot.sendMessage(update.message.chat_id, text=received)
 
