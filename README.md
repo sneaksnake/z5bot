@@ -2,6 +2,13 @@
 A script to glue the Telegram Bot API and Frotz together.  
 Maybe an instance is running [right now](http://telegram.me/z5bot)!
 
+## Why?
+Playing games by using this bot has these advantages:
+
+- portability: play at home, then continue your game on the bus (e.g. via phone)
+- collaboration: you can add the bot to a Telegram group and play games together!
+- ease of use: you don't need an interpreter or game files, just Telegram
+
 ## Screenshot
 ![it is actually able to run](https://raw.githubusercontent.com/sneaksnake/z5bot/master/media/demo-screenshot.png)  
 
