@@ -6,10 +6,11 @@ import telegram
 from dfrotz import DFrotz
 
 logging.basicConfig(
-  format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+  format='%(asctime)s-%(name)s-%(levelname)s - %(message)s',
+  datefmt='%Y-%m-%d %H:%M:%S',
   level=logging.DEBUG,
 )
-logging.getLogger('telegram').setLevel(logging.INFO)
+logging.getLogger('telegram').setLevel(logging.WARNING)
 
 
 class Story:
@@ -88,9 +89,6 @@ class Z5Bot:
         return player
 
   def process(self, username, command):
-    import pprint
-    pprint.pprint(self.players)
-
     self.player = self.get_player_by_username(username)
     self.player.frotz.send('%s\r\n' % command)
 
@@ -101,7 +99,8 @@ class Z5Bot:
 
 def cmd_start(bot, update):
   text =  'Welcome, %s!\n' % update.message.from_user.first_name
-  text += 'Please use the /select command to select a game.'
+  text += 'Please use the /select command to select a game.\n'
+  text += '(You will lose progress on any running game!)'
   bot.sendMessage(update.message.chat_id, text=text)
 
 def cmd_select(bot, update):
@@ -121,6 +120,8 @@ def cmd_select(bot, update):
 def on_message(bot, update):
   z5bot = Z5Bot.get_instance_or_create()
 
+  logging.info('@%s sent: %r' % (update.message.from_user.username, update.message.text[:30]))
+
   username = update.message.from_user.username
   player = Player.get_instance_or_create(username)
 
@@ -129,15 +130,15 @@ def on_message(bot, update):
     bot.sendMessage(update.message.chat_id, text=text)
     return
 
-  print(player.story)
+  # print(player.story)
 
-  if z5bot.get_player_by_username(username) is None:
-    logging.debug('Adding Player %r to the bot.' % player)
-    z5bot.add_player(player)
+  #if z5bot.get_player_by_username(username) is None:
+  #  logging.debug('Adding Player %r to the bot.' % player)
+  #  z5bot.add_player(player)
   z5bot.process(username, update.message.text)
 
   received = z5bot.receive(username)
-  #print(received)
+  logging.info('Answering @%s: %r' % (update.message.from_user.username, received[:30]))
   bot.sendMessage(update.message.chat_id, text=received)
 
 def on_error(bot, update, error):
