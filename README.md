@@ -9,6 +9,8 @@ Playing games by using this bot has these advantages:
 - collaboration: you can add the bot to a Telegram group and play games together!
 - ease of use: you don't need an interpreter or game files, just Telegram
 
+[Even a Raspberry Pi 2 is able to handle 30 different chats at the same time with ease!](https://i.imgur.com/GK3amYn.png)
+
 ## Screenshot
 ![it is actually able to run](https://raw.githubusercontent.com/sneaksnake/z5bot/master/media/demo-screenshot.png)  
 
