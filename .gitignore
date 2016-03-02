@@ -3,6 +3,7 @@ stories/
 tools/
 venv/
 config.txt
+config.json
 z5bot.sublime-project
 z5bot.sublime-workspace
 

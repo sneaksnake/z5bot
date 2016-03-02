@@ -1,3 +1,4 @@
+import json
 import logging
 import os
 
@@ -146,10 +147,12 @@ def on_error(bot, update, error):
 
 
 if __name__ == '__main__':
-  with open('config.txt', 'r') as config_file:
-    api_key = config_file.read().replace('\n', '')
-    print('api key: ' + api_key)
-    updater = telegram.Updater(api_key)
+  with open('config.json', 'r') as f:
+    config = json.load(f)
+
+  api_key = config['api_key']
+  logging.info('Logging in with api key %r' % api_key)
+  updater = telegram.Updater(api_key)
   dispatcher = updater.dispatcher
 
   dispatcher.addTelegramCommandHandler('start', cmd_start)
