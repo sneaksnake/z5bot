@@ -123,7 +123,7 @@ def cmd_select(bot, update):
 def on_message(bot, update):
   z5bot = Z5Bot.get_instance_or_create()
 
-  logging.info('@%s sent: %r' % (update.message.from_user.username, update.message.text[:30]))
+  logging.info('@%s[%d] sent: %r' % (update.message.from_user.username, update.message.from_user.id, update.message.text[:30]))
 
   id = update.message.chat_id
   chat = Chat.get_instance_or_create(id)
@@ -136,7 +136,7 @@ def on_message(bot, update):
   z5bot.process(id, update.message.text)
 
   received = z5bot.receive(id)
-  logging.info('Answering @%s: %r' % (update.message.from_user.username, received[:30]))
+  logging.info('Answering @%s[%d]: %r' % (update.message.from_user.username, update.message.from_user.id, received[:30]))
   bot.sendMessage(update.message.chat_id, text=received)
 
 def on_error(bot, update, error):
