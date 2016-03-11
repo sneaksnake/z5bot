@@ -29,6 +29,10 @@ class Story:
     for story in self.instances:
       if story.abbrev == abbrev:
         return story
+    return None
+
+  def __repr__(self):
+    return '<Story: %s [%s]>' % (self.abbrev, self.path)
 
 class Chat:
 
@@ -113,13 +117,22 @@ def cmd_select(bot, update):
   id = update.message.chat_id
   chat = Chat.get_instance_or_create(id)
   
-  text = 'For Zork 1, write /select z1\nMore games soon.'
-  if 'z1' in update.message.text: 
-    chat.set_story(Story(name='Zork 1', abbrev='z1', filename='zork_1-r52.z5'))
-    z5bot.add_chat(chat)
-    bot.sendMessage(update.message.chat_id, text=z5bot.receive(update.message.chat_id))
-  else:
-    bot.sendMessage(update.message.chat_id, text=text)
+  selection = 'For "%s", write /select %s.'
+  msg_parts = []
+  for story in Story.instances:
+    part = selection % (story.name, story.abbrev)
+    msg_parts.append(part)
+  text = '\n'.join(msg_parts)
+
+  for story in Story.instances:
+    if story.abbrev in update.message.text:
+      chat.set_story(Story.get_instance_by_abbrev(story.abbrev))
+      z5bot.add_chat(chat)
+      bot.sendMessage(update.message.chat_id, text='Starting "%s"...' % story.name)
+      bot.sendMessage(update.message.chat_id, text=z5bot.receive(update.message.chat_id))
+      return
+
+  bot.sendMessage(update.message.chat_id, text=text)
 
 def on_message(bot, update):
   z5bot = Z5Bot.get_instance_or_create()
@@ -152,7 +165,16 @@ if __name__ == '__main__':
 
   api_key = config['api_key']
   logging.info('Logging in with api key %r' % api_key)
+
+  for story in config['stories']:
+    Story(name=story['name'],
+      abbrev=story['abbrev'],
+      filename=story['filename'])
+
+  print(Story.instances)
+
   updater = telegram.Updater(api_key)
+
   dispatcher = updater.dispatcher
 
   dispatcher.addTelegramCommandHandler('start', cmd_start)

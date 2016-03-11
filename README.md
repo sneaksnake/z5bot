@@ -18,12 +18,12 @@ At the time of writing, full documentation doesn't exist
 and most stuff is hardcoded.
 But if you want to give it a try anyway...
 
-## Installation (sigh)
-Put bot.py and dfrotz.py in a directory. Additionally, create  
-- stories/zork_1-r52.z5 (z5 file containing Zork I)
-- tools/dfrotz (Frotz compiled in dumb-mode / see Frotz Makefile)
-- config.txt (a file JUST containing your Telegram API key)
+## Installation
+Put bot.py, dfrotz.py in a directory. Rename config.json.example to config.json.  
+Additionally, place create  
+- e.g. stories/zork_1-r52.z5 (z5 file containing Zork I)
+- tools/dfrotz (Frotz compiled in dumb-mode / see Frotz Makefile)  
+and amend config.json.  
+Install python-telegram-bot and run bot.py.
 
-in the same folder. Install python-telegram-bot and run bot.py.
-
-(Don't) have fun. :D
+Have fun. :D

@@ -1,0 +1,16 @@
+{
+  "api_key": "fill in your bot api key",
+  "interpreter": "tools/dfrotz",
+  "stories": [
+    {
+      "name": "Zork 1",
+      "abbrev": "z1",
+      "filename": "zork_1-r52.z5"
+    },
+    {
+      "name": "The Hitchhiker's Guide to the Galaxy",
+      "abbrev": "hhgg",
+      "filename": "hhgg.z5"
+    }
+  ]
+}
