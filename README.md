@@ -24,6 +24,7 @@ Additionally, place create
 - e.g. stories/zork_1-r52.z5 (z5 file containing Zork I)
 - tools/dfrotz (Frotz compiled in dumb-mode / see Frotz Makefile)  
 and amend config.json.  
+
 Install python-telegram-bot and run bot.py.
 
 Have fun. :D
