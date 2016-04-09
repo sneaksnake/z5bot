@@ -12,19 +12,22 @@ Playing games by using this bot has these advantages:
 [Even a Raspberry Pi 2 is able to handle 30 different chats at the same time with ease!](https://i.imgur.com/GK3amYn.png)
 
 ## Screenshot
+### playing alone
 ![it is actually able to run](https://raw.githubusercontent.com/sneaksnake/z5bot/master/media/demo-screenshot.png)  
 
+### playing in a group
+![zomg!](https://raw.githubusercontent.com/sneaksnake/z5bot/master/media/demo-screenshot-group.png)
+
 At the time of writing, full documentation doesn't exist
-and most stuff is hardcoded.
-But if you want to give it a try anyway...
+and some stuff is still hardcoded.
 
 ## Installation
 Put bot.py, dfrotz.py in a directory. Rename config.json.example to config.json.  
-Additionally, place create  
-- e.g. stories/zork_1-r52.z5 (z5 file containing Zork I)
-- tools/dfrotz (Frotz compiled in dumb-mode / see Frotz Makefile)  
-and amend config.json.  
+Additionally, place  
+- a z-machine game file in the stories/ folder  
+- dfrotz (Frotz compiled in dumb-mode / see Frotz Makefile) in the tools/ folder  
+and edit config.json to fit your needs.  
 
-Install python-telegram-bot and run bot.py.
+Install python-telegram-bot from pip and run bot.py, e.g. via screen.
 
 Have fun. :D
