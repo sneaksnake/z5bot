@@ -188,9 +188,9 @@ def on_message(bot, update):
     received[:30])
   )
   bot.sendMessage(update.message.chat_id, text=received)
-  if 'return' in received.lower() or 'enter' in received.lower():
-    notice = '(Note: You are able to do that by typing /enter.)'
-    bot.sendMessage(update.message.chat_id, text=received)
+  if ' return ' in received.lower() or ' enter ' in received.lower():
+    notice = '(Note: You are able to do use the return key by typing /enter.)'
+    bot.sendMessage(update.message.chat_id, text=notice)
 
 def cmd_load(bot, update):
   z5bot = Z5Bot.get_instance_or_create()
@@ -242,6 +242,8 @@ def key_enter(bot, update):
   z5bot.process(update.message.chat_id, command)
   bot.sendMessage(update.message.chat_id, text=z5bot.receive(update.message.chat_id))
 
+def let_ignore(bot, update):
+  return
 
 def on_error(bot, update, error):
   logger = logging.getLogger(__name__)
@@ -273,6 +275,7 @@ if __name__ == '__main__':
   dispatcher.addTelegramCommandHandler('load', cmd_load)
   dispatcher.addTelegramCommandHandler('clear', cmd_clear)
   dispatcher.addTelegramCommandHandler('enter', key_enter)
+  dispatcher.addTelegramCommandHandler('i', let_ignore)
   dispatcher.addTelegramMessageHandler(on_message)
   dispatcher.addErrorHandler(on_error)
 
