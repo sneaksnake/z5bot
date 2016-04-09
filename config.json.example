@@ -1,6 +1,11 @@
 {
   "api_key": "fill in your bot api key",
   "interpreter": "tools/dfrotz",
+  "redis": {
+    "host": "localhost",
+    "port": 6379,
+    "db": 0
+  },
   "stories": [
     {
       "name": "Zork 1",

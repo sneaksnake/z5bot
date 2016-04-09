@@ -136,10 +136,6 @@ def cmd_select(bot, update):
       bot.sendMessage(update.message.chat_id, text='Starting "%s"...' % story.name)
       notice  = 'Your progress will be saved automatically.'
       bot.sendMessage(update.message.chat_id, text=notice)
-      if z5bot.redis is None:
-        # TODO: make it configurable. for now on, just edit this file
-        r = redis.StrictRedis(host='192.168.178.53', port=6379, db=1)
-        z5bot.add_redis(r)
       bot.sendMessage(update.message.chat_id, text=z5bot.receive(update.message.chat_id))
       if z5bot.redis.exists(update.message.chat_id):
         notice  = 'Some progress already exists. Use /load to restore it '
@@ -264,6 +260,14 @@ if __name__ == '__main__':
       filename=story['filename'])
 
   print(Story.instances)
+
+  z5bot = Z5Bot.get_instance_or_create()
+  r = redis.StrictRedis(
+    host=config['redis']['host'],
+    port=config['redis']['port'],
+    db=config['redis']['db']
+  )
+  z5bot.add_redis(r)
 
   updater = telegram.ext.Updater(api_key)
 
