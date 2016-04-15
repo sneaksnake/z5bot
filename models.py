@@ -144,12 +144,15 @@ class Z5Bot:
         """
         self.redis = redis
 
-    def add_chat(self, chat):
+    def add_chat(self, new_chat):
         """
         Links a Chat instance to the calling
         Z5Bot instance.
         """
-        self.chats.append(chat)
+        for chat in self.chats:
+            if chat.id == new_chat.id:
+                self.chats.remove(chat)
+        self.chats.append(new_chat)
 
     def get_chat_by_id(self, id):
         """
