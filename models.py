@@ -120,6 +120,7 @@ class Z5Bot:
         """
         self.__class__.instances.append(self)
         self.chats = []
+        self.parser = None
         self.redis = None
 
     @classmethod
@@ -136,6 +137,13 @@ class Z5Bot:
             instance = Z5Bot()
             logging.debug('Created new Z5Bot instance: %r' % instance)
         return instance
+
+    def add_parser(self, parser):
+        """
+        Links a parser.Parser instance
+        to the calling Z5Bot instance.
+        """
+        self.parser = parser
 
     def add_redis(self, redis):
         """

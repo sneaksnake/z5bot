@@ -141,20 +141,9 @@ def cmd_ping(bot, message, *args):
     bot.sendMessage(message.chat_id, 'Pong!')
 
 def on_message(bot, update):
-    p = parser.Parser()
-    p.add_default(cmd_default)
-    p.add_command('/start', cmd_start)
-    p.add_command('/select', cmd_select)
-    p.add_command('/load', cmd_load)
-    p.add_command('/clear', cmd_clear)
-    p.add_command('/enter', cmd_enter)
-    p.add_command('/i', cmd_ignore)
-    p.add_command('/ping', cmd_ping)
-
     message = update.message
-    func = p.get_function(message.text)
-
     z5bot = models.Z5Bot.get_instance_or_create()
+    func = z5bot.parser.get_function(message.text)
     chat = models.Chat.get_instance_or_create(message.chat_id)
 
     func(bot, message, z5bot, chat)
@@ -175,6 +164,18 @@ if __name__ == '__main__':
     print(models.Story.instances)
 
     z5bot = models.Z5Bot.get_instance_or_create()
+
+    p = parser.Parser()
+    p.add_default(cmd_default)
+    p.add_command('/start', cmd_start)
+    p.add_command('/select', cmd_select)
+    p.add_command('/load', cmd_load)
+    p.add_command('/clear', cmd_clear)
+    p.add_command('/enter', cmd_enter)
+    p.add_command('/i', cmd_ignore)
+    p.add_command('/ping', cmd_ping)
+    z5bot.add_parser(p)
+
     r = redis.StrictRedis(
         host=config['redis']['host'],
         port=config['redis']['port'],
