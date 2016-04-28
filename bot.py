@@ -178,7 +178,8 @@ if __name__ == '__main__':
     r = redis.StrictRedis(
         host=config['redis']['host'],
         port=config['redis']['port'],
-        db=config['redis']['db']
+        db=config['redis']['db'],
+        password=config['redis']['password'],
     )
     z5bot.add_redis(r)
 
