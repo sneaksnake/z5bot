@@ -58,17 +58,12 @@ class DFrotz():
         self.lines = []
         while True:
             try:
-                try:
-                    self.line = self.queue.get(timeout=0.5).decode('utf-8')
-                except UnicodeDecodeError:
-                    return 'Don\'t you dare to post special characters.'
-                else:
-                    self.line = '\n'.join(' '.join(line_.split()) for line_ in self.line.split('\n'))
+                self.line = self.queue.get(timeout=1).decode('cp1252')
+                self.line = '\n'.join(' '.join(line_.split()) for line_ in self.line.split('\n'))
             except queue.Empty:
                 print('', end='')
                 break
             else:
-                #print(self.line)
                 self.lines.append(self.line)
 
         return self.generate_output()
