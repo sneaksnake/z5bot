@@ -77,7 +77,7 @@ def cmd_select(bot, message, z5bot, chat):
     text = '\n'.join(msg_parts)
 
     for story in models.Story.instances:
-        if story.abbrev in message.text:
+        if ' ' in message.text and message.text.strip().lower().split(' ')[1] == story.abbrev:
             chat.set_story(models.Story.get_instance_by_abbrev(story.abbrev))
             z5bot.add_chat(chat)
             bot.sendMessage(message.chat_id, 'Starting "%s"...' % story.name)
