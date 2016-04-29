@@ -65,7 +65,6 @@ def cmd_default(bot, message, z5bot, chat):
 def cmd_start(bot, message, *args):
     text =  'Welcome, %s!\n' % message.from_user.first_name
     text += 'Please use the /select command to select a game.\n'
-    text += '(You will lose progress on any running game!)'
     bot.sendMessage(message.chat_id, text)
 
 def cmd_select(bot, message, z5bot, chat):
