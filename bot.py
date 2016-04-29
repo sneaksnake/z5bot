@@ -36,12 +36,12 @@ def on_error(bot, update, error):
 
 def cmd_default(bot, message, z5bot, chat):
     # gameplay messages will be sent here
-    if message.text.strip() == 'load':
+    if message.text.strip().lower() == 'load':
         text = 'Please use /load.'
         bot.sendMessage(message.chat_id, text)
         return
 
-    if message.text.strip() == 'save':
+    if message.text.strip().lower() == 'save':
         text = 'Your progress is being saved automatically. But /load is available.'
         bot.sendMessage(message.chat_id, text)
         return
