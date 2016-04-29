@@ -52,7 +52,7 @@ def cmd_default(bot, message, z5bot, chat):
         return
 
     # here, stuff is sent to the interpreter
-    z5bot.redis.rpush(message.chat_id, message.text)
+    z5bot.redis.rpush('%d:%s' % (message.chat_id, chat.story.abbrev), message.text)
     z5bot.process(message.chat_id, message.text)
 
     received = z5bot.receive(message.chat_id)
@@ -83,8 +83,8 @@ def cmd_select(bot, message, z5bot, chat):
             notice  = 'Your progress will be saved automatically.'
             bot.sendMessage(message.chat_id, notice)
             bot.sendMessage(message.chat_id, z5bot.receive(message.chat_id))
-            if z5bot.redis.exists(message.chat_id):
-                notice  = 'Some progress already exists. Use /load to restore it '
+            if z5bot.redis.exists('%d:%s' % (message.chat_id, chat.story.abbrev)):
+                notice  = 'Some progress in %s already exists. Use /load to restore it ' % (chat.story.name)
                 notice += 'or /clear to reset your recorded actions.'
                 bot.sendMessage(message.chat_id, notice)
             return
@@ -96,15 +96,15 @@ def cmd_load(bot, message, z5bot, chat):
         text = 'You have to select a game first.'
         bot.sendMessage(message.chat_id, text)
         return
-    if not z5bot.redis.exists(message.chat_id):
+    if not z5bot.redis.exists('%d:%s' % (message.chat_id, chat.story.abbrev)):
         text = 'There is no progress to load.'
         bot.sendMessage(message.chat_id, text)
         return
 
-    text = 'Restoring %d messages. Please wait.' % z5bot.redis.llen(message.chat_id)
+    text = 'Restoring %d messages. Please wait.' % z5bot.redis.llen('%d:%s' % (message.chat_id, chat.story.abbrev))
     bot.sendMessage(message.chat_id, text)
 
-    saved_messages = z5bot.redis.lrange(message.chat_id, 0, -1)
+    saved_messages = z5bot.redis.lrange('%d:%s' % (message.chat_id, chat.story.abbrev), 0, -1)
 
     for index, db_message in enumerate(saved_messages):
         z5bot.process(message.chat_id, db_message.decode('utf-8'))
@@ -115,15 +115,15 @@ def cmd_load(bot, message, z5bot, chat):
 
 
 def cmd_clear(bot, message, z5bot, chat):
-    if not z5bot.redis.exists(message.chat_id):
+    if not z5bot.redis.exists('%d:%s' % (message.chat_id, chat.story.abbrev)):
         text = 'There is no progress to clear.'
         bot.sendMessage(message.chat_id, text)
         return
 
-    text = 'Deleting %d messages. Please wait.' % z5bot.redis.llen(message.chat_id)
+    text = 'Deleting %d messages. Please wait.' % z5bot.redis.llen('%d:%s' % (message.chat_id, chat.story.abbrev))
     bot.sendMessage(message.chat_id, text)
 
-    z5bot.redis.delete(message.chat_id)
+    z5bot.redis.delete('%d:%s' % (message.chat_id, chat.story.abbrev))
     bot.sendMessage(message.chat_id, 'Done.')
 
 def cmd_enter(bot, message, z5bot, chat):
@@ -131,7 +131,7 @@ def cmd_enter(bot, message, z5bot, chat):
         return
 
     command = '' # \r\n is automatically added by the Frotz abstraction layer
-    z5bot.redis.rpush(message.chat_id, command)
+    z5bot.redis.rpush('%d:%s' % (message.chat_id, chat.story.abbrev), command)
     z5bot.process(message.chat_id, command)
     bot.sendMessage(message.chat_id, z5bot.receive(message.chat_id))
 
@@ -139,7 +139,7 @@ def cmd_broadcast(bot, message, z5bot, *args):
     if z5bot.broadcasted or len(sys.argv) <= 1:
         return
 
-    active_chats = [int(chat_id) for chat_id in z5bot.redis.keys()]
+    active_chats = [int(chat_id.split(':')[0]) for chat_id in z5bot.redis.keys()]
     logging.info('Broadcasting to %d chats.' % len(active_chats))
     with open(sys.argv[1], 'r') as f:
         notice = f.read()
