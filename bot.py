@@ -124,7 +124,7 @@ def cmd_clear(bot, message, z5bot, chat):
     bot.sendMessage(message.chat_id, text)
 
     z5bot.redis.delete(message.chat_id)
-    bot.sendMessage(message.chat_id, text='Done.')
+    bot.sendMessage(message.chat_id, 'Done.')
 
 def cmd_enter(bot, message, z5bot, chat):
     if not chat.has_story():
@@ -167,16 +167,16 @@ if __name__ == '__main__':
         config = json.load(f)
 
     api_key = config['api_key']
-    logging.info('Logging in with api key %r' % api_key)
+    logging.info('Logging in with api key %r.' % api_key)
     if len(sys.argv) > 1:
         logging.info('Broadcasting is available! Send /broadcast.')
 
     for story in config['stories']:
-        models.Story(name=story['name'],
+        models.Story(
+            name=story['name'],
             abbrev=story['abbrev'],
-            filename=story['filename'])
-
-    print(models.Story.instances)
+            filename=story['filename']
+        )
 
     z5bot = models.Z5Bot.get_instance_or_create()
 
