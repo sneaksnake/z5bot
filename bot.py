@@ -2,6 +2,7 @@ import json
 import logging
 import os
 import sys
+import time
 
 import redis
 import telegram.ext
@@ -139,12 +140,15 @@ def cmd_broadcast(bot, message, z5bot, *args):
     if z5bot.broadcasted or len(sys.argv) <= 1:
         return
 
-    active_chats = [int(chat_id.split(':')[0]) for chat_id in z5bot.redis.keys()]
+    print(z5bot.redis.keys())
+    active_chats = [int(chat_id.decode('utf-8').split(':')[0]) for chat_id in z5bot.redis.keys()]
     logging.info('Broadcasting to %d chats.' % len(active_chats))
     with open(sys.argv[1], 'r') as f:
         notice = f.read()
     for chat_id in active_chats:
+        logging.info('Notifying %d...' % chat_id)
         bot.sendMessage(chat_id, notice)
+        time.sleep(0.5) # cooldown
     z5bot.broadcasted = True
 
 def cmd_ignore(*args):
