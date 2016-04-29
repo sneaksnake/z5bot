@@ -1,6 +1,7 @@
 import json
 import logging
 import os
+import sys
 
 import redis
 import telegram.ext
@@ -134,6 +135,18 @@ def cmd_enter(bot, message, z5bot, chat):
     z5bot.process(message.chat_id, command)
     bot.sendMessage(message.chat_id, z5bot.receive(message.chat_id))
 
+def cmd_broadcast(bot, message, z5bot, *args):
+    if z5bot.broadcasted or len(sys.argv) <= 1:
+        return
+
+    active_chats = [int(chat_id) for chat_id in z5bot.redis.keys()]
+    logging.info('Broadcasting to %d chats.' % len(active_chats))
+    with open(sys.argv[1], 'r') as f:
+        notice = f.read()
+    for chat_id in active_chats:
+        bot.sendMessage(chat_id, notice)
+    z5bot.broadcasted = True
+
 def cmd_ignore(*args):
     return
 
@@ -155,6 +168,8 @@ if __name__ == '__main__':
 
     api_key = config['api_key']
     logging.info('Logging in with api key %r' % api_key)
+    if len(sys.argv) > 1:
+        logging.info('Broadcasting is available! Send /broadcast.')
 
     for story in config['stories']:
         models.Story(name=story['name'],
@@ -172,6 +187,7 @@ if __name__ == '__main__':
     p.add_command('/load', cmd_load)
     p.add_command('/clear', cmd_clear)
     p.add_command('/enter', cmd_enter)
+    p.add_command('/broadcast', cmd_broadcast)
     p.add_command('/i', cmd_ignore)
     p.add_command('/ping', cmd_ping)
     z5bot.add_parser(p)

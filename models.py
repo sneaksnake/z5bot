@@ -119,6 +119,7 @@ class Z5Bot:
         a Z5Bot instance.
         """
         self.__class__.instances.append(self)
+        self.broadcasted = False
         self.chats = []
         self.parser = None
         self.redis = None
