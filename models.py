@@ -133,10 +133,10 @@ class Z5Bot:
         """
         if len(self.instances) > 0:
             instance = self.instances[0]
-            logging.debug('Using existing Z5Bot instance: %r' % instance)
+            logging.debug('Using %r!' % instance)
         else:
             instance = Z5Bot()
-            logging.debug('Created new Z5Bot instance: %r' % instance)
+            logging.debug('Created new Z5Bot instance!')
         return instance
 
     def add_parser(self, parser):
@@ -191,4 +191,4 @@ class Z5Bot:
         return self.chat.frotz.get()
 
     def __repr__(self):
-        return '<Z5Bot, chats running: %d>' % len(self.chats)
+        return '<Z5Bot, %d chats>' % len(self.chats)
