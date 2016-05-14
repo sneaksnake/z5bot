@@ -53,7 +53,6 @@ class DFrotz():
 
         return self.output
 
-
     def get(self):
         self.lines = []
         while True:
@@ -65,6 +64,13 @@ class DFrotz():
                 break
             else:
                 self.lines.append(self.line)
+
+        for index, line in enumerate(self.lines):
+            # long line (> 70 chars) could be a part of
+            # a text passage - removing \n there to
+            # make output more readable
+            if len(line) >= 70 and line.endswith('\n'):
+                self.lines[index] = line.replace('\n', ' ')
 
         return self.generate_output()
 
