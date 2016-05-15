@@ -54,7 +54,9 @@ def cmd_default(bot, message, z5bot, chat):
     z5bot.process(message.chat_id, message.text)
 
     received = z5bot.receive(message.chat_id)
-    bot.sendMessage(message.chat_id, received)
+    reply = bot.sendMessage(message.chat_id, received)
+    log_dialog(message, reply)
+
     if ' return ' in received.lower() or ' enter ' in received.lower():
         notice = '(Note: You are able to do use the return key by typing /enter.)'
         return bot.sendMessage(message.chat_id, notice)
