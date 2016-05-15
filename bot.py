@@ -148,8 +148,11 @@ def cmd_broadcast(bot, message, z5bot, *args):
         notice = f.read()
     for chat_id in active_chats:
         logging.info('Notifying %d...' % chat_id)
-        bot.sendMessage(chat_id, notice)
-        time.sleep(0.5) # cooldown
+        try:
+            bot.sendMessage(chat_id, notice)
+        except:
+            continue
+        time.sleep(2) # cooldown
     z5bot.broadcasted = True
 
 def cmd_ignore(*args):
