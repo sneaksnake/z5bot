@@ -57,7 +57,9 @@ class Chat:
         chat id).
         """
         self.__class__.instances.append(self)
+        self.frotz = None
         self.id = id
+        self.savedir = None
         self.story = None
         #self.stage = 
 
@@ -122,6 +124,7 @@ class Z5Bot:
         self.broadcasted = False
         self.chats = []
         self.parser = None
+        self.cwd = None
 
     @classmethod
     def get_instance_or_create(self):
@@ -150,6 +153,12 @@ class Z5Bot:
         Links a Chat instance to the calling
         Z5Bot instance.
         """
+
+        # Create the Chat's save directory if it doesn't exist
+        new_chat.savedir = self.cwd.joinpath("saves/%d/" % new_chat.id)
+        os.makedirs(new_chat.savedir, exist_ok=True)
+
+        # Remove an already existing Chat instance before adding the new one
         for chat in self.chats:
             if chat.id == new_chat.id:
                 self.chats.remove(chat)
@@ -181,6 +190,9 @@ class Z5Bot:
         """
         self.chat = self.get_chat_by_id(id)
         return self.chat.frotz.get()
+
+    def set_cwd(self, cwd):
+        self.cwd = cwd
 
     def __repr__(self):
         return '<Z5Bot, %d chats>' % len(self.chats)

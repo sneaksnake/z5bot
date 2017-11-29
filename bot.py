@@ -1,6 +1,8 @@
+import datetime
 import json
 import logging
 import os
+import pathlib
 import sys
 import time
 
@@ -36,13 +38,19 @@ def on_error(bot, update, error):
 
 def cmd_default(bot, message, z5bot, chat):
     # gameplay messages will be sent here
-    if message.text.strip().lower() == 'load':
-        text = 'Please use /load.'
-        return bot.sendMessage(message.chat_id, text)
+    text = message.text.strip().lower()
 
-    if message.text.strip().lower() == 'save':
-        text = 'Your progress is being saved automatically. But /load is available.'
-        return bot.sendMessage(message.chat_id, text)
+    if any(cmd in text for cmd in ["load", "restore"]):
+        text = '(Note: use /load.)'
+        bot.sendMessage(message.chat_id, text)
+        if not chat.has_story():
+            return
+
+    if any(cmd in text for cmd in ["save", "dump", "backup"]):
+        text = '(Note: use /save.)'
+        bot.sendMessage(message.chat_id, text)
+        if not chat.has_story():
+            return
 
     if not chat.has_story():
         text = 'Please use the /select command to select a game.'
@@ -92,8 +100,31 @@ def cmd_load(bot, message, z5bot, chat):
         text = 'You have to select a game first.'
         return bot.sendMessage(message.chat_id, text)
 
-    return bot.sendMessage(message.chat_id, "This is a stub.")
+    # Todo: match a RegEx against user input. z5bot should not leak my
+    # secret files about MKULTRA.
+    savefile = message.text.split(maxsplit=1)[1]
+    for command in ["restore", chat.savedir.joinpath(savefile)]:
+        z5bot.process(message.chat_id, command)
 
+    if "ok" in z5bot.receive(message.chat_id).lower():
+        return bot.sendMessage(message.chat_id, "Restored the game.")
+    else:
+        return bot.sendMessage(message.chat_id, "Something went wrong. Please notify @mrtnb.")
+
+
+def cmd_save(bot, message, z5bot, chat):
+    if not chat.has_story():
+        text = 'You have to play a game first.'
+        return bot.sendMessage(message.chat_id, text)
+
+    savefile = datetime.datetime.now().strftime("%y%m%d-%H%M") + ".qzl"
+    for command in ["save", chat.savedir.joinpath(savefile)]:
+        z5bot.process(message.chat_id, command)
+
+    if "ok" in z5bot.receive(message.chat_id).lower():
+        return bot.sendMessage(message.chat_id, "Saved. Restore via /load %s." % savefile)
+    else:
+        return bot.sendMessage(message.chat_id, "Something went wrong. Please notify @mrtnb.")
 
 def cmd_clear(bot, message, z5bot, chat):
     return bot.sendMessage(message.chat_id, "This is a stub.")
@@ -140,12 +171,14 @@ if __name__ == '__main__':
         )
 
     z5bot = models.Z5Bot.get_instance_or_create()
+    z5bot.set_cwd(pathlib.Path.cwd())
 
     p = parser.Parser()
     p.add_default(cmd_default)
     p.add_command('/start', cmd_start)
     p.add_command('/select', cmd_select)
     p.add_command('/load', cmd_load)
+    p.add_command('/save', cmd_save)
     p.add_command('/clear', cmd_clear)
     p.add_command('/enter', cmd_enter)
     p.add_command('/i', cmd_ignore)
