@@ -122,7 +122,6 @@ class Z5Bot:
         self.broadcasted = False
         self.chats = []
         self.parser = None
-        self.redis = None
 
     @classmethod
     def get_instance_or_create(self):
@@ -145,13 +144,6 @@ class Z5Bot:
         to the calling Z5Bot instance.
         """
         self.parser = parser
-
-    def add_redis(self, redis):
-        """
-        Links a redis-py instance to the
-        calling Z5Bot instance.
-        """
-        self.redis = redis
 
     def add_chat(self, new_chat):
         """

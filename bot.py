@@ -4,7 +4,6 @@ import os
 import sys
 import time
 
-import redis
 import telegram.ext
 
 from dfrotz import DFrotz
@@ -50,7 +49,6 @@ def cmd_default(bot, message, z5bot, chat):
         return bot.sendMessage(message.chat_id, text)
 
     # here, stuff is sent to the interpreter
-    z5bot.redis.rpush('%d:%s' % (message.chat_id, chat.story.abbrev), message.text)
     z5bot.process(message.chat_id, message.text)
 
     received = z5bot.receive(message.chat_id)
@@ -85,11 +83,6 @@ def cmd_select(bot, message, z5bot, chat):
             log_dialog(message, reply)
             reply = bot.sendMessage(message.chat_id, z5bot.receive(message.chat_id))
             log_dialog(message, reply)
-            if z5bot.redis.exists('%d:%s' % (message.chat_id, chat.story.abbrev)):
-                notice  = 'Some progress in %s already exists. Use /load to restore it ' % (chat.story.name)
-                notice += 'or /clear to reset your recorded actions.'
-                reply = bot.sendMessage(message.chat_id, notice)
-                log_dialog(message, reply)
             return
 
     return bot.sendMessage(message.chat_id, text)
@@ -98,64 +91,20 @@ def cmd_load(bot, message, z5bot, chat):
     if not chat.has_story():
         text = 'You have to select a game first.'
         return bot.sendMessage(message.chat_id, text)
-        
-    if not z5bot.redis.exists('%d:%s' % (message.chat_id, chat.story.abbrev)):
-        text = 'There is no progress to load.'
-        return bot.sendMessage(message.chat_id, text)
 
-    text = 'Restoring %d messages. Please wait.' % z5bot.redis.llen('%d:%s' % (message.chat_id, chat.story.abbrev))
-    reply = bot.sendMessage(message.chat_id, text)
-    log_dialog(message, reply)
-
-    saved_messages = z5bot.redis.lrange('%d:%s' % (message.chat_id, chat.story.abbrev), 0, -1)
-
-    for index, db_message in enumerate(saved_messages):
-        z5bot.process(message.chat_id, db_message.decode('utf-8'))
-        if index == len(saved_messages)-2:
-            z5bot.receive(message.chat_id) # clear buffer
-    reply = bot.sendMessage(message.chat_id, 'Done.')
-    log_dialog(message, reply)
-    return bot.sendMessage(message.chat_id, z5bot.receive(message.chat_id))
+    return bot.sendMessage(message.chat_id, "This is a stub.")
 
 
 def cmd_clear(bot, message, z5bot, chat):
-    if not z5bot.redis.exists('%d:%s' % (message.chat_id, chat.story.abbrev)):
-        text = 'There is no progress to clear.'
-        return bot.sendMessage(message.chat_id, text)
-
-    text = 'Deleting %d messages. Please wait.' % z5bot.redis.llen('%d:%s' % (message.chat_id, chat.story.abbrev))
-    reply = bot.sendMessage(message.chat_id, text)
-    log_dialog(message, reply)
-
-    z5bot.redis.delete('%d:%s' % (message.chat_id, chat.story.abbrev))
-    return bot.sendMessage(message.chat_id, 'Done.')
+    return bot.sendMessage(message.chat_id, "This is a stub.")
 
 def cmd_enter(bot, message, z5bot, chat):
     if not chat.has_story():
         return
 
     command = '' # \r\n is automatically added by the Frotz abstraction layer
-    z5bot.redis.rpush('%d:%s' % (message.chat_id, chat.story.abbrev), command)
     z5bot.process(message.chat_id, command)
     return bot.sendMessage(message.chat_id, z5bot.receive(message.chat_id))
-
-def cmd_broadcast(bot, message, z5bot, *args):
-    if z5bot.broadcasted or len(sys.argv) <= 1:
-        return
-
-    print(z5bot.redis.keys())
-    active_chats = [int(chat_id.decode('utf-8').split(':')[0]) for chat_id in z5bot.redis.keys()]
-    logging.info('Broadcasting to %d chats.' % len(active_chats))
-    with open(sys.argv[1], 'r') as f:
-        notice = f.read()
-    for chat_id in active_chats:
-        logging.info('Notifying %d...' % chat_id)
-        try:
-            bot.sendMessage(chat_id, notice)
-        except:
-            continue
-        time.sleep(2) # cooldown
-    z5bot.broadcasted = True
 
 def cmd_ignore(*args):
     return
@@ -199,18 +148,10 @@ if __name__ == '__main__':
     p.add_command('/load', cmd_load)
     p.add_command('/clear', cmd_clear)
     p.add_command('/enter', cmd_enter)
-    p.add_command('/broadcast', cmd_broadcast)
     p.add_command('/i', cmd_ignore)
     p.add_command('/ping', cmd_ping)
     z5bot.add_parser(p)
 
-    r = redis.StrictRedis(
-        host=config['redis']['host'],
-        port=config['redis']['port'],
-        db=config['redis']['db'],
-        password=config['redis']['password'],
-    )
-    z5bot.add_redis(r)
 
     updater = telegram.ext.Updater(api_key)
     dispatcher = updater.dispatcher
