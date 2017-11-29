@@ -157,8 +157,6 @@ if __name__ == '__main__':
     dispatcher = updater.dispatcher
     # Make sure the user's messages get redirected to our parser,
     # with or without a slash in front of them.
-    dispatcher.addTelegramMessageHandler(on_message)
-    dispatcher.addUnknownTelegramCommandHandler(on_message)
-    dispatcher.addErrorHandler(on_error)
+    dispatcher.add_handler(telegram.ext.MessageHandler(filters=[], callback=on_message))
+    dispatcher.add_error_handler(callback=on_error)
     updater.start_polling()
-    updater.idle()
